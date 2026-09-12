@@ -1,0 +1,7 @@
+import Header from '@/components/Header';
+import { getProduct } from '@/lib/products';
+import { notFound } from 'next/navigation';
+export default async function ProductPage({ params }: { params: Promise<{ slug: string }> }) {
+ const {slug}=await params; const product=await getProduct(slug); if(!product) notFound(); const discount=product.old_price?Math.round((1-product.price/product.old_price)*100):0;
+ return (<><Header/><main className="container"><div className="breadcrumb"><a href="/">Início</a> / {product.category} / {product.title}</div><section className="detail"><div className="detail-image">{discount>0&&<span className="badge">-{discount}%</span>}<img src={product.image_url} alt={product.title}/></div><div className="detail-info"><span className="store">{product.store}</span><h1>{product.title}</h1><p>{product.description}</p>{product.old_price&&<div className="old">R$ {product.old_price.toFixed(2).replace('.',',')}</div>}<div className="detail-price">R$ {product.price.toFixed(2).replace('.',',')}</div><p className="installment">Preço encontrado no momento da publicação. Consulte a loja para confirmar estoque e condições.</p><a className="btn btn-primary detail-offer" href={product.affiliate_url} target="_blank" rel="noopener noreferrer">Ir para a oferta</a></div></section></main></>);
+}
