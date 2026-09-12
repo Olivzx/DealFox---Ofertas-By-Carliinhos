@@ -1,0 +1,10 @@
+'use client';
+import { Moon, Search, ShieldCheck, Sun } from 'lucide-react';
+import { useEffect, useState } from 'react';
+const THEME_KEY = 'dealfox-theme';
+export default function Header({ initialQuery = '' }: { initialQuery?: string }) {
+  const [dark, setDark] = useState(false);
+  useEffect(() => { const saved = window.localStorage.getItem(THEME_KEY); const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches; const isDark = saved ? saved === 'dark' : prefersDark; setDark(isDark); document.documentElement.dataset.theme = isDark ? 'dark' : 'light'; }, []);
+  function toggleTheme() { const next = !dark; setDark(next); document.documentElement.dataset.theme = next ? 'dark' : 'light'; window.localStorage.setItem(THEME_KEY, next ? 'dark' : 'light'); }
+  return (<><div className="topbar"><div className="container"><span>🔥 Ofertas selecionadas todos os dias</span><span>Links de afiliado • Compra segura direto na loja</span></div></div><header className="header"><div className="container header-main"><a className="brand" href="/" aria-label="DealFox - início"><span className="brand-mark">🦊</span><span>DealFox</span></a><form className="search" action="/" method="get"><input name="q" defaultValue={initialQuery} placeholder="Busque por produtos, marcas ou categorias..." /><button aria-label="Buscar" type="submit"><Search size={18} /></button></form><div className="header-actions"><div className="header-trust"><ShieldCheck size={18} /><span>Ofertas verificadas</span></div><button className="theme-toggle" type="button" onClick={toggleTheme} aria-label={dark ? 'Ativar tema claro' : 'Ativar tema escuro'} title={dark ? 'Tema claro' : 'Tema escuro'}>{dark ? <Sun size={18} /> : <Moon size={18} />}<span className="theme-toggle-label">{dark ? 'Claro' : 'Escuro'}</span></button></div></div></header></>);
+}
