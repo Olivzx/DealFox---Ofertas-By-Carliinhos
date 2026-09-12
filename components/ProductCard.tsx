@@ -1,0 +1,5 @@
+import type { Product } from '@/lib/types';
+export default function ProductCard({ product }: { product: Product }) {
+  const discount = product.old_price ? Math.round((1 - product.price / product.old_price) * 100) : 0;
+  return (<article className="card"><a href={`/product/${product.slug}`} aria-label={`Ver ${product.title}`}><div className="product-img"><img src={product.image_url} alt={product.title} loading="lazy" />{discount > 0 && <span className="badge">-{discount}%</span>}</div><div className="card-body"><div className="store">{product.store}</div><div className="title">{product.title}</div>{product.old_price && <div className="old">R$ {product.old_price.toFixed(2).replace('.', ',')}</div>}<div className="price">R$ {product.price.toFixed(2).replace('.', ',')}</div><div className="installment">Oferta encontrada para você</div></div></a><div className="card-action"><a className="btn btn-primary offer-btn" href={product.affiliate_url} target="_blank" rel="noopener noreferrer">Ver oferta</a></div></article>);
+}
