@@ -1,0 +1,14 @@
+create extension if not exists pgcrypto;
+create table if not exists public.products (id uuid primary key default gen_random_uuid(),title text not null,slug text not null unique,description text,image_url text not null,store text not null,category text not null,price numeric(12,2) not null check(price>=0),old_price numeric(12,2),affiliate_url text not null,featured boolean not null default false,active boolean not null default true,created_at timestamptz not null default now());
+create table if not exists public.admin_users (user_id uuid primary key references auth.users(id) on delete cascade,created_at timestamptz not null default now());
+alter table public.products enable row level security; alter table public.admin_users enable row level security;
+revoke all on table public.products from anon,authenticated; grant select on table public.products to anon,authenticated; grant insert,update,delete on table public.products to authenticated;
+revoke all on table public.admin_users from anon,authenticated; grant select on table public.admin_users to authenticated;
+drop policy if exists "public can read active products" on public.products; create policy "public can read active products" on public.products for select to anon,authenticated using(active=true);
+drop policy if exists "admins can read all products" on public.products; create policy "admins can read all products" on public.products for select to authenticated using(exists(select 1 from public.admin_users a where a.user_id=(select auth.uid())));
+drop policy if exists "admins can insert products" on public.products; create policy "admins can insert products" on public.products for insert to authenticated with check(exists(select 1 from public.admin_users a where a.user_id=(select auth.uid())));
+drop policy if exists "admins can update products" on public.products; create policy "admins can update products" on public.products for update to authenticated using(exists(select 1 from public.admin_users a where a.user_id=(select auth.uid()))) with check(exists(select 1 from public.admin_users a where a.user_id=(select auth.uid())));
+drop policy if exists "admins can delete products" on public.products; create policy "admins can delete products" on public.products for delete to authenticated using(exists(select 1 from public.admin_users a where a.user_id=(select auth.uid())));
+drop policy if exists "admins can read own admin row" on public.admin_users; create policy "admins can read own admin row" on public.admin_users for select to authenticated using(user_id=(select auth.uid()));
+create index if not exists products_active_created_idx on public.products(active,created_at desc); create index if not exists products_category_idx on public.products(category);
+-- Depois de criar um usuário em Authentication > Users, vincule seu UUID em admin_users.
